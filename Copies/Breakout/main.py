@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+from ball import Ball
 from paddle import Paddle
 from wall import Wall
 
@@ -37,6 +38,7 @@ rows = 6
 wall = Wall(SCREEN_WIDTH, columns, rows)
 wall.create_wall()
 paddle = Paddle(SCREEN_WIDTH, SCREEN_HEIGHT, columns)
+ball = Ball(paddle.x + (paddle.width // 2), paddle.y - paddle.height)
 
 # -----------------------
 # Game Loop
@@ -45,10 +47,15 @@ run = True
 while run:
     clock.tick(FPS)
     screen.fill(bg)
+
+    # Draw
     wall.draw_wall(screen, block_red, block_green, block_blue, bg)
     paddle.draw(screen, paddle_color, paddle_outline)
     paddle.move(SCREEN_WIDTH)
+    ball.draw(screen, paddle_color, paddle_outline)
+    ball.move(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    # Run
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
