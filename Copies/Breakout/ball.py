@@ -50,13 +50,13 @@ class Ball(pygame.sprite.Sprite):
                         wall.blocks[row_count][item_count][0] = (0, 0, 0, 0)
                 # check if block still exists
                 if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
-                    wall.destroyed = 0
+                    wall_destroyed = 0
                 # increase item counter
                 item_count += 1
             # increase row counter
             row_count += 1
         # after iterating through all the blocks, check if the wall is destroyed
-        if wall_destroyed == 1:
+        if wall_destroyed:
             self.game_over = 1
 
         # check for collision with walls
@@ -86,4 +86,11 @@ class Ball(pygame.sprite.Sprite):
         self.rect.y += self.speed_y
 
         return self.game_over
+
+    def reset(self, x, y):
+        self.rect.x = x - self.ball_rad
+        self.rect.y = y
+        self.speed_x = 4
+        self.speed_y = -4
+        self.game_over = 0
 

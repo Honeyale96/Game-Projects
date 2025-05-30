@@ -28,3 +28,7 @@ class Paddle(pygame.sprite.Sprite):
     def draw(self, screen, paddle_color, paddle_outline):
         pygame.draw.rect(screen, paddle_color, self.rect)
         pygame.draw.rect(screen, paddle_outline, self.rect, 3)
+
+    def reset(self):
+        self.rect.x = (self.rect.width * self.columns // 2) - (self.width // 2)
+        self.direction = 0

@@ -29,9 +29,15 @@ block_blue = (69, 177, 232)
 paddle_color = (142, 135, 123)
 paddle_outline = (100, 100, 100)
 
+# Text Colors
+font = pygame.font.SysFont('Constantia', 30)
+text_color = (78, 81, 139)
+
 # Game Variables
 columns = 6
 rows = 6
+live_ball = False
+game_over = 0
 
 
 # Instances
@@ -41,6 +47,13 @@ paddle = Paddle(SCREEN_WIDTH, SCREEN_HEIGHT, columns)
 ball = Ball(paddle.x + (paddle.width // 2), paddle.y - paddle.height)
 
 # -----------------------
+# Helper Function
+# -----------------------
+def draw_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
+
+# -----------------------
 # Game Loop
 # -----------------------
 run = True
@@ -48,17 +61,37 @@ while run:
     clock.tick(FPS)
     screen.fill(bg)
 
-    # Draw
+    # Draw all objects
     wall.draw_wall(screen, block_red, block_green, block_blue, bg)
     paddle.draw(screen, paddle_color, paddle_outline)
-    paddle.move(SCREEN_WIDTH)
     ball.draw(screen, paddle_color, paddle_outline)
-    ball.move(SCREEN_WIDTH, SCREEN_HEIGHT, paddle, wall)
+
+    if live_ball:
+        paddle.move(SCREEN_WIDTH)
+        game_over = ball.move(SCREEN_WIDTH, SCREEN_HEIGHT, paddle, wall)
+        if game_over != 0:
+            live_ball = False
+
+    # Print player instructions
+    if not live_ball:
+        if game_over == 0:
+            draw_text('CLICK ANYWHERE TO START', font, text_color, 100, SCREEN_HEIGHT // 2 + 100)
+        elif game_over == 1:
+            draw_text('YOU WON!', font, text_color, 240, SCREEN_HEIGHT // 2 + 50)
+            draw_text('CLICK ANYWHERE TO START', font, text_color, 100, SCREEN_HEIGHT // 2 + 100)
+        elif game_over == -1:
+            draw_text('YOU LOST!', font, text_color, 240, SCREEN_HEIGHT // 2 + 50)
+            draw_text('CLICK ANYWHERE TO START', font, text_color, 100, SCREEN_HEIGHT // 2 + 100)
 
     # Run
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN and live_ball == False:
+            live_ball = True
+            ball.reset(paddle.x + (paddle.width // 2), paddle.y - paddle.height)
+            paddle.reset()
+            wall.create_wall()
 
     pygame.display.update()
 pygame.quit()
