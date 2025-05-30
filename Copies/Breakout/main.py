@@ -53,7 +53,7 @@ while run:
     paddle.draw(screen, paddle_color, paddle_outline)
     paddle.move(SCREEN_WIDTH)
     ball.draw(screen, paddle_color, paddle_outline)
-    ball.move(SCREEN_WIDTH, SCREEN_HEIGHT)
+    ball.move(SCREEN_WIDTH, SCREEN_HEIGHT, paddle, wall)
 
     # Run
     for event in pygame.event.get():
