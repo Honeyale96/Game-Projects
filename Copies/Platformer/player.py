@@ -1,6 +1,5 @@
 import pygame
 
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -17,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         # Initial animation/frame setup
         self.index = 0
         self.counter = 0
+        self.dead_image = pygame.image.load('img/ghost.png')
         self.image = self.images_right[self.index]
         self.direction = 0  # 1 = right, -1 = left
         # Physics and movement
@@ -34,40 +34,53 @@ class Player(pygame.sprite.Sprite):
         self.walk_cooldown = 5
 
 
-    def update(self, screen, screen_height, world):
+    def update(self, screen, screen_height, world, blob_group,lava_group, game_over):
         """Updates the player's state each frame."""
+        if game_over == 0:
+            dx, dy = self.handle_input()
+            dy += self.apply_gravity()
 
-        dx, dy = self.handle_input()
-        dy += self.apply_gravity()
+            # Check for collision
+            for tile in world.tile_list:
+                #  Horizontal(x) direction
+                if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    dx = 0
+                # Vertical(y) direction
+                if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                    if self.vel_y < 0: # Jumping into tile
+                        dy = tile[1].bottom - self.rect.top
+                        self.vel_y = 0
+                    elif self.vel_y >= 0: # Falling onto tile
+                        dy = tile[1].top - self.rect.bottom
+                        self.vel_y = 0
+            # Check for collision with enemies
+            if pygame.sprite.spritecollide(self, blob_group, False):
+                game_over = -1
+                self.image = self.dead_image
+            # Check for collision with enemies
+            if pygame.sprite.spritecollide(self, lava_group, False):
+                game_over = -1
+                self.image = self.dead_image
 
-        # Check for collision
-        for tile in world.tile_list:
-            #  Horizontal(x) direction
-            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
-                dx = 0
-            # Vertical(y) direction
-            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                if self.vel_y < 0: # Jumping into tile
-                    dy = tile[1].bottom - self.rect.top
-                    self.vel_y = 0
-                elif self.vel_y >= 0: # Falling onto tile
-                    dy = tile[1].top - self.rect.bottom
-                    self.vel_y = 0
+            # Update player position
+            self.rect.x += dx
+            self.rect.y += dy
 
+        elif game_over == -1:
+            if self.rect.y > 100:
+                self.rect.y += -5
 
-        # Update player position
-        self.rect.x += dx
-        self.rect.y += dy
+            # # Prevent player from falling off-screen
+            # if self.rect.bottom > screen_height:
+            #     self.rect.bottom = screen_height
+            #     self.vel_y = 0
+            # No longer needed once wall collision is introduced
 
-        # Prevent player from falling off-screen
-        if self.rect.bottom > screen_height:
-            self.rect.bottom = screen_height
-            self.vel_y = 0
-
-        # Draw player
+            # Draw player
         screen.blit(self.image, self.rect)
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
+        return game_over
 
     def handle_input(self):
         """Handles keyboard input for movement and jumping."""

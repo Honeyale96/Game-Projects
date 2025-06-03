@@ -25,6 +25,9 @@ pygame.display.set_caption('Platformer')
 bg_img = pygame.image.load('img/sky.png')
 sun_img = pygame.image.load('img/sun.png')
 
+# Game Variables
+GAME_OVER = 0
+
 # -----------------------
 # Level Data (Map)
 # -----------------------
@@ -80,10 +83,15 @@ while run:
     screen.blit(bg_img, (0, 0))
     screen.blit(sun_img, (100, 100))
     world.draw(screen)
-    player.update(screen, SCREEN_HEIGHT, world)
-    blob_group.update()
+    # --- Update and draw sprites ---
     blob_group.draw(screen)
     lava_group.draw(screen)
+
+    if GAME_OVER == 0:
+        blob_group.update()
+
+    GAME_OVER = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, GAME_OVER)
+
     # draw_grid()  # Uncomment to see grid lines
 
     # --- Event Handling ---
