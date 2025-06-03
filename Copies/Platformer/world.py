@@ -1,7 +1,9 @@
 import pygame
 
+from enemy import Enemy
+
 class World(pygame.sprite.Sprite):
-    def __init__(self, data, tile_size):
+    def __init__(self, data, tile_size, blob_group):
         super().__init__()
         self.tile_list = []
 
@@ -27,6 +29,9 @@ class World(pygame.sprite.Sprite):
                     img_rect.y = row_count * tile_size
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
+                if tile == 3:
+                    blob = Enemy(col_count * tile_size, row_count * tile_size + 8)
+                    blob_group.add(blob)
                 col_count += 1
             row_count += 1
 
@@ -34,3 +39,4 @@ class World(pygame.sprite.Sprite):
         """Draws all tiles to the screen."""
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
+            # pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
