@@ -55,8 +55,9 @@ world_data = [
 # Create Game Objects
 # -----------------------
 blob_group = pygame.sprite.Group()
+lava_group = pygame.sprite.Group()
 player = Player(100, (SCREEN_HEIGHT - 130))
-world = World(world_data, TILE_SIZE, blob_group)
+world = World(world_data, TILE_SIZE, blob_group, lava_group)
 
 
 # -----------------------
@@ -82,6 +83,7 @@ while run:
     player.update(screen, SCREEN_HEIGHT, world)
     blob_group.update()
     blob_group.draw(screen)
+    lava_group.draw(screen)
     # draw_grid()  # Uncomment to see grid lines
 
     # --- Event Handling ---

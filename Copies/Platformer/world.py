@@ -1,9 +1,10 @@
 import pygame
 
 from enemy import Enemy
+from lava import Lava
 
 class World(pygame.sprite.Sprite):
-    def __init__(self, data, tile_size, blob_group):
+    def __init__(self, data, tile_size, blob_group, lava_group):
         super().__init__()
         self.tile_list = []
 
@@ -32,6 +33,9 @@ class World(pygame.sprite.Sprite):
                 if tile == 3:
                     blob = Enemy(col_count * tile_size, row_count * tile_size + 8)
                     blob_group.add(blob)
+                if tile == 6:
+                    lava = Lava(col_count * tile_size, row_count * tile_size + (tile_size // 2), tile_size)
+                    lava_group.add(lava)
                 col_count += 1
             row_count += 1
 
