@@ -47,12 +47,13 @@ class Player(pygame.sprite.Sprite):
                     dx = 0
                 # Vertical(y) direction
                 if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                    if self.vel_y < 0: # Jumping into tile
+                    if self.vel_y < 0:  # Jumping into tile
                         dy = tile[1].bottom - self.rect.top
                         self.vel_y = 0
-                    elif self.vel_y >= 0: # Falling onto tile
+                    elif self.vel_y >= 0:  # Falling onto tile
                         dy = tile[1].top - self.rect.bottom
                         self.vel_y = 0
+                        self.jumped = False  # Only reset jump here
             # Check for collision with enemies
             if pygame.sprite.spritecollide(self, blob_group, False):
                 game_over = -1
@@ -92,8 +93,6 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and not self.jumped:
             self.vel_y = self.jump_strength
             self.jumped = True
-        if not keys[pygame.K_SPACE]:
-            self.jumped = False
 
         # Move Left
         if keys[pygame.K_LEFT]:
