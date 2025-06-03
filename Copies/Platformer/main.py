@@ -10,6 +10,7 @@ from world import World
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 FPS = 60
+TILE_SIZE = 40
 
 
 # -----------------------
@@ -17,15 +18,16 @@ FPS = 60
 # -----------------------
 pygame.init()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Create the game window
-pygame.display.set_caption('Platformer')  # Set window title
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Platformer')
 
-# Load Images
+# Load Background Images
 bg_img = pygame.image.load('img/sky.png')
 sun_img = pygame.image.load('img/sun.png')
 
-# Game variables
-tile_size = 40
+# -----------------------
+# Level Data (Map)
+# -----------------------
 world_data = [
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -49,17 +51,20 @@ world_data = [
 [1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-# Instances
-world = World(world_data, tile_size)
+# -----------------------
+# Create Game Objects
+# -----------------------
+world = World(world_data, TILE_SIZE)
 player = Player(100, SCREEN_HEIGHT - 130)
+
 
 # -----------------------
 # Helper Functions
 # -----------------------
 def draw_grid():
     for line in range(0, 20):
-        pygame.draw.line(screen, (255, 255, 255), (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
-        pygame.draw.line(screen, (255, 255, 255), (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
+        pygame.draw.line(screen, (255, 255, 255), (0, line * TILE_SIZE), (SCREEN_WIDTH, line * TILE_SIZE))
+        pygame.draw.line(screen, (255, 255, 255), (line * TILE_SIZE, 0), (line * TILE_SIZE, SCREEN_HEIGHT))
 
 
 # -----------------------
@@ -69,17 +74,19 @@ run = True
 while run:
     clock.tick(FPS)
 
-    # Draw all objects
-    screen.blit(bg_img, (0,0))
+    # --- Draw Everything ---
+    screen.blit(bg_img, (0, 0))
     screen.blit(sun_img, (100, 100))
     world.draw(screen)
     player.update(screen, SCREEN_HEIGHT)
-    # draw_grid()
+    # draw_grid()  # Uncomment to see grid lines
 
-    # Run
+    # --- Event Handling ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
     pygame.display.update()
+
+# Cleanup
 pygame.quit()

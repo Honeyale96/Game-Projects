@@ -1,12 +1,11 @@
 import pygame
 
-
 class World(pygame.sprite.Sprite):
     def __init__(self, data, tile_size):
         super().__init__()
         self.tile_list = []
 
-        # load images
+        # Load tile images
         dirt_img = pygame.image.load('img/dirt.png')
         grass_img = pygame.image.load('img/grass.png')
 
@@ -32,5 +31,6 @@ class World(pygame.sprite.Sprite):
             row_count += 1
 
     def draw(self, screen):
+        """Draws all tiles to the screen."""
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
