@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.reset(x, y)  # Do image loading and positioning
 
 
-    def update(self, screen, screen_height, world, blob_group,lava_group, game_over):
+    def update(self, screen, screen_height, world, blob_group,lava_group, exit_group, game_over):
         """Updates the player's state each frame."""
         if game_over == 0:
             dx, dy = self.handle_input()
@@ -53,10 +53,13 @@ class Player(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(self, blob_group, False):
                 game_over = -1
                 self.image = self.dead_image
-            # Check for collision with enemies
+            # Check for collision with lava
             if pygame.sprite.spritecollide(self, lava_group, False):
                 game_over = -1
                 self.image = self.dead_image
+            # Check for collision with exit
+            if pygame.sprite.spritecollide(self, exit_group, False):
+                game_over = 1
 
             # Update player position
             self.rect.x += dx
@@ -155,4 +158,3 @@ class Player(pygame.sprite.Sprite):
         self.height = self.image.get_height()
         self.vel_y = 0
         self.jumped = False
-
