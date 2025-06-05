@@ -3,28 +3,19 @@ import pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-
-        # Load and prepare animation frames
+        # Instance attributes
         self.images_right = []
         self.images_left = []
-        for num in range(1, 5):
-            img_right = pygame.image.load(f'img/guy{num}.png')
-            img_right = pygame.transform.scale(img_right, (40, 80))
-            img_left = pygame.transform.flip(img_right, True, False)
-            self.images_right.append(img_right)
-            self.images_left.append(img_left)
+        self.image = None
+        self.dead_image = None
         # Initial animation/frame setup
         self.index = 0
         self.counter = 0
-        self.dead_image = pygame.image.load('img/ghost.png')
-        self.image = self.images_right[self.index]
-        self.direction = 0  # 1 = right, -1 = left
+        self.direction = 0
         # Physics and movement
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
+        self.rect = pygame.Rect(0, 0, 0, 0)
+        self.width = 0
+        self.height = 0
         self.vel_y = 0
         self.jumped = False
         # Constants
@@ -32,6 +23,8 @@ class Player(pygame.sprite.Sprite):
         self.jump_strength = -15
         self.walk_speed = 5
         self.walk_cooldown = 5
+
+        self.reset(x, y)  # Do image loading and positioning
 
 
     def update(self, screen, screen_height, world, blob_group,lava_group, game_over):
@@ -54,6 +47,8 @@ class Player(pygame.sprite.Sprite):
                         dy = tile[1].top - self.rect.bottom
                         self.vel_y = 0
                         self.jumped = False  # Only reset jump here
+
+
             # Check for collision with enemies
             if pygame.sprite.spritecollide(self, blob_group, False):
                 game_over = -1
@@ -77,7 +72,7 @@ class Player(pygame.sprite.Sprite):
             #     self.vel_y = 0
             # No longer needed once wall collision is introduced
 
-            # Draw player
+        # Draw player
         screen.blit(self.image, self.rect)
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
@@ -136,3 +131,28 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.images_right[self.index]
             elif self.direction == -1:
                 self.image = self.images_left[self.index]
+
+    def reset(self, x, y):
+        self.images_right = []
+        self.images_left = []
+        for num in range(1, 5):
+            img_right = pygame.image.load(f'img/guy{num}.png')
+            img_right = pygame.transform.scale(img_right, (40, 80))
+            img_left = pygame.transform.flip(img_right, True, False)
+            self.images_right.append(img_right)
+            self.images_left.append(img_left)
+
+        self.dead_image = pygame.image.load('img/ghost.png')
+        self.image = self.images_right[0]
+        self.direction = 0
+        self.index = 0
+        self.counter = 0
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.vel_y = 0
+        self.jumped = False
+

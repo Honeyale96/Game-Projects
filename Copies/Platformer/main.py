@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+from button import Button
 from player import Player
 from world import World
 
@@ -24,6 +25,7 @@ pygame.display.set_caption('Platformer')
 # Load Background Images
 bg_img = pygame.image.load('img/sky.png')
 sun_img = pygame.image.load('img/sun.png')
+restart_img = pygame.image.load('img/restart_btn.png')
 
 # Game Variables
 GAME_OVER = 0
@@ -61,6 +63,7 @@ blob_group = pygame.sprite.Group()
 lava_group = pygame.sprite.Group()
 player = Player(100, (SCREEN_HEIGHT - 130))
 world = World(world_data, TILE_SIZE, blob_group, lava_group)
+restart_button = Button(SCREEN_WIDTH // 2 - 70, SCREEN_HEIGHT // 2, restart_img)
 
 
 # -----------------------
@@ -91,6 +94,12 @@ while run:
         blob_group.update()
 
     GAME_OVER = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, GAME_OVER)
+
+    #if player has died
+    if GAME_OVER == -1:
+        if restart_button.draw(screen):
+            player.reset(100, (SCREEN_HEIGHT - 130))
+            GAME_OVER = 0
 
     # draw_grid()  # Uncomment to see grid lines
 
