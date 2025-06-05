@@ -26,9 +26,12 @@ pygame.display.set_caption('Platformer')
 bg_img = pygame.image.load('img/sky.png')
 sun_img = pygame.image.load('img/sun.png')
 restart_img = pygame.image.load('img/restart_btn.png')
+start_img = pygame.image.load('img/start_btn.png')
+exit_img = pygame.image.load('img/exit_btn.png')
 
 # Game Variables
-GAME_OVER = 0
+game_over = 0
+main_menu = True
 
 # -----------------------
 # Level Data (Map)
@@ -64,7 +67,8 @@ lava_group = pygame.sprite.Group()
 player = Player(100, (SCREEN_HEIGHT - 130))
 world = World(world_data, TILE_SIZE, blob_group, lava_group)
 restart_button = Button(SCREEN_WIDTH // 2 - 70, SCREEN_HEIGHT // 2, restart_img)
-
+start_button = Button(SCREEN_WIDTH // 2 - 350, SCREEN_HEIGHT // 2 - 25, start_img)
+exit_button = Button(SCREEN_WIDTH // 2 + 80, SCREEN_HEIGHT // 2 - 25, exit_img)
 
 # -----------------------
 # Helper Functions
@@ -85,21 +89,27 @@ while run:
     # --- Draw Everything ---
     screen.blit(bg_img, (0, 0))
     screen.blit(sun_img, (100, 100))
-    world.draw(screen)
-    # --- Update and draw sprites ---
-    blob_group.draw(screen)
-    lava_group.draw(screen)
+    if main_menu:
+        if exit_button.draw(screen):
+            run = False
+        if start_button.draw(screen):
+            main_menu = False
+    else:
+        world.draw(screen)
+        # --- Update and draw sprites ---
+        blob_group.draw(screen)
+        lava_group.draw(screen)
 
-    if GAME_OVER == 0:
-        blob_group.update()
+        if game_over == 0:
+            blob_group.update()
 
-    GAME_OVER = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, GAME_OVER)
+        game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, game_over)
 
-    #if player has died
-    if GAME_OVER == -1:
-        if restart_button.draw(screen):
-            player.reset(100, (SCREEN_HEIGHT - 130))
-            GAME_OVER = 0
+        #if player has died
+        if game_over == -1:
+            if restart_button.draw(screen):
+                player.reset(100, (SCREEN_HEIGHT - 130))
+                game_over = 0
 
     # draw_grid()  # Uncomment to see grid lines
 
