@@ -24,11 +24,12 @@ class Player(pygame.sprite.Sprite):
         self.jump_strength = -15
         self.walk_speed = 5
         self.walk_cooldown = 5
+        self.col_thresh = 20
 
         self.reset(x, y)  # Do image loading and positioning
 
 
-    def update(self, screen, screen_height, world, blob_group,lava_group, exit_group, game_over, jump_fx, game_over_fx):
+    def update(self, screen, screen_height, world, blob_group,platform_group, lava_group, exit_group, game_over, jump_fx, game_over_fx):
         """Updates the player's state each frame."""
         if game_over == 0:
             dx, dy = self.handle_input(jump_fx)
@@ -64,6 +65,26 @@ class Player(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(self, exit_group, False):
                 game_over = 1
 
+            # check for collision with platforms
+            for platform in platform_group:
+                # collision in the x direction
+                if platform.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    dx = 0
+                # collision in the y direction
+                if platform.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                    # check if below platform
+                    if abs((self.rect.top + dy) - platform.rect.bottom) < self.col_thresh:
+                        self.vel_y = 0
+                        dy = platform.rect.bottom - self.rect.top
+                    # check if above platform
+                    elif abs((self.rect.bottom + dy) - platform.rect.top) < self.col_thresh:
+                        self.rect.bottom = platform.rect.top - 1
+                        self.jumped = False
+                        dy = 0
+                    # move sideways with the platform
+                    if platform.move_x != 0:
+                        self.rect.x += platform.move_direction
+
             # Update player position
             self.rect.x += dx
             self.rect.y += dy
@@ -72,15 +93,8 @@ class Player(pygame.sprite.Sprite):
             if self.rect.y > 100:
                 self.rect.y += -5
 
-            # # Prevent player from falling off-screen
-            # if self.rect.bottom > screen_height:
-            #     self.rect.bottom = screen_height
-            #     self.vel_y = 0
-            # No longer needed once wall collision is introduced
-
         # Draw player
         screen.blit(self.image, self.rect)
-        # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
         return game_over
 

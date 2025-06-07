@@ -77,6 +77,7 @@ def reset_level(level):
     global world_data
     player.reset(100, (SCREEN_HEIGHT - 130))
     blob_group.empty()
+    platform_group.empty()
     lava_group.empty()
     exit_group.empty()
     # load in level data and create world
@@ -147,7 +148,7 @@ while run:
             draw_text("X " + str(score), font_score, white, TILE_SIZE - 10, 10)
 
 
-        game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, exit_group,
+        game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, platform_group, lava_group, exit_group,
                                   game_over, jump_fx, game_over_fx)
 
         #if player has died
