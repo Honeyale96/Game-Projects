@@ -4,6 +4,8 @@ import pickle
 from os import path
 
 from button import Button
+from coin import Coin
+from level_editor import tile_size
 from player import Player
 from world import World
 
@@ -31,11 +33,20 @@ restart_img = pygame.image.load('img/restart_btn.png')
 start_img = pygame.image.load('img/start_btn.png')
 exit_img = pygame.image.load('img/exit_btn.png')
 
+# Define Font
+font = pygame.font.SysFont('Bauhaus 93', 70)
+font_score = pygame.font.SysFont('Bauhaus 93', 30)
+
+# Define Colors
+white = (255, 255, 255)
+blue = (0, 0, 255)
+
 # Game Variables
 game_over = 0
 main_menu = True
-level = 1
+level = 0
 max_levels = 7
+score = 0
 
 # -----------------------
 # Helper Functions
@@ -44,6 +55,11 @@ def draw_grid():
     for line in range(0, 20):
         pygame.draw.line(screen, (255, 255, 255), (0, line * TILE_SIZE), (SCREEN_WIDTH, line * TILE_SIZE))
         pygame.draw.line(screen, (255, 255, 255), (line * TILE_SIZE, 0), (line * TILE_SIZE, SCREEN_HEIGHT))
+
+def draw_text(text, font,  text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x + 10, y))
+
 
 def reset_level(level):
     global world_data
@@ -55,7 +71,7 @@ def reset_level(level):
     if path.exists(f'level_data/level{level}_data'):
         pickle_in = open(f'level_data/level{level}_data', 'rb')
         world_data = pickle.load(pickle_in)
-    world = World(world_data, TILE_SIZE, blob_group, lava_group, exit_group)
+    world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group)
     return world
 
 # -----------------------
@@ -64,14 +80,21 @@ def reset_level(level):
 # Create Groups
 blob_group = pygame.sprite.Group()
 lava_group = pygame.sprite.Group()
+coin_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
+
+# Create dummy coin for showing the score
+score_coin = Coin(tile_size // 2, tile_size // 2 + 10, tile_size)
+coin_group.add(score_coin)
+
 # Create Player
 player = Player(100, (SCREEN_HEIGHT - 130))
 # Load in level_data and create world
 if path.exists(f'level_data/level{level}_data'):
     pickle_in = open(f'level_data/level{level}_data', 'rb')
     world_data = pickle.load(pickle_in)
-world = World(world_data, TILE_SIZE, blob_group, lava_group, exit_group)
+world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group)
+
 # Create Buttons
 restart_button = Button(SCREEN_WIDTH // 2 - 70, SCREEN_HEIGHT // 2, restart_img)
 start_button = Button(SCREEN_WIDTH // 2 - 350, SCREEN_HEIGHT // 2 - 25, start_img)
@@ -97,10 +120,16 @@ while run:
         # --- Update and draw sprites ---
         blob_group.draw(screen)
         lava_group.draw(screen)
+        coin_group.draw(screen)
         exit_group.draw(screen)
 
         if game_over == 0:
             blob_group.update()
+            # update score - check if a coin has been collected
+            if pygame.sprite.spritecollide(player, coin_group, True):
+                score += 1
+            draw_text("X " + str(score), font_score, white, tile_size - 10, 10)
+
 
         game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, exit_group, game_over)
 
@@ -110,6 +139,7 @@ while run:
                 world_data = []
                 world = reset_level(level)
                 game_over = 0
+                score = 0
         #if player has completed a level
         if game_over == 1:
             # reset game and go to next level
@@ -120,13 +150,15 @@ while run:
                 world = reset_level(level)
                 game_over = 0
             else:
+                draw_text('YOU WIN!', font, blue, (SCREEN_WIDTH // 2) - 140, SCREEN_HEIGHT // 2 + 100)
                 # restart game
-                if restart_button.draw(level):
+                if restart_button.draw(screen):
                     level = 1
                     # reset level
                     world_data = []
                     world = reset_level(level)
                     game_over = 0
+                    score = 0
 
 
     # draw_grid()  # Uncomment to see grid lines
