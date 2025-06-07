@@ -83,7 +83,7 @@ def reset_level(level):
     if path.exists(f'level_data/level{level}_data'):
         pickle_in = open(f'level_data/level{level}_data', 'rb')
         world_data = pickle.load(pickle_in)
-    world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group)
+    world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group, platform_group)
     return world
 
 # -----------------------
@@ -91,6 +91,7 @@ def reset_level(level):
 # -----------------------
 # Create Groups
 blob_group = pygame.sprite.Group()
+platform_group = pygame.sprite.Group()
 lava_group = pygame.sprite.Group()
 coin_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
@@ -105,7 +106,7 @@ player = Player(100, (SCREEN_HEIGHT - 130))
 if path.exists(f'level_data/level{level}_data'):
     pickle_in = open(f'level_data/level{level}_data', 'rb')
     world_data = pickle.load(pickle_in)
-world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group)
+world = World(world_data, TILE_SIZE, blob_group, lava_group, coin_group, exit_group, platform_group)
 
 # Create Buttons
 restart_button = Button(SCREEN_WIDTH // 2 - 70, SCREEN_HEIGHT // 2, restart_img)
@@ -131,12 +132,14 @@ while run:
         world.draw(screen)
         # --- Update and draw sprites ---
         blob_group.draw(screen)
+        platform_group.draw(screen)
         lava_group.draw(screen)
         coin_group.draw(screen)
         exit_group.draw(screen)
 
         if game_over == 0:
             blob_group.update()
+            platform_group.update()
             # update score - check if a coin has been collected
             if pygame.sprite.spritecollide(player, coin_group, True):
                 coin_fx.play()
