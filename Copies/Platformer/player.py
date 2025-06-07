@@ -1,5 +1,6 @@
 import pygame
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -27,10 +28,10 @@ class Player(pygame.sprite.Sprite):
         self.reset(x, y)  # Do image loading and positioning
 
 
-    def update(self, screen, screen_height, world, blob_group,lava_group, exit_group, game_over):
+    def update(self, screen, screen_height, world, blob_group,lava_group, exit_group, game_over, jump_fx, game_over_fx):
         """Updates the player's state each frame."""
         if game_over == 0:
-            dx, dy = self.handle_input()
+            dx, dy = self.handle_input(jump_fx)
             dy += self.apply_gravity()
 
             # Check for collision
@@ -52,10 +53,12 @@ class Player(pygame.sprite.Sprite):
             # Check for collision with enemies
             if pygame.sprite.spritecollide(self, blob_group, False):
                 game_over = -1
+                game_over_fx.play()
                 self.image = self.dead_image
             # Check for collision with lava
             if pygame.sprite.spritecollide(self, lava_group, False):
                 game_over = -1
+                game_over_fx.play()
                 self.image = self.dead_image
             # Check for collision with exit
             if pygame.sprite.spritecollide(self, exit_group, False):
@@ -81,7 +84,7 @@ class Player(pygame.sprite.Sprite):
 
         return game_over
 
-    def handle_input(self):
+    def handle_input(self, jump_fx):
         """Handles keyboard input for movement and jumping."""
         dx = 0
         dy = 0
@@ -89,6 +92,7 @@ class Player(pygame.sprite.Sprite):
 
         # Jump
         if keys[pygame.K_SPACE] and not self.jumped:
+            jump_fx.play()
             self.vel_y = self.jump_strength
             self.jumped = True
 

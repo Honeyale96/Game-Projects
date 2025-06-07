@@ -1,11 +1,11 @@
 import pygame
 from pygame.locals import *
+from pygame import mixer
 import pickle
 from os import path
 
 from button import Button
 from coin import Coin
-from level_editor import tile_size
 from player import Player
 from world import World
 
@@ -21,7 +21,9 @@ TILE_SIZE = 40
 # -----------------------
 # Initialization
 # -----------------------
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
+mixer.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Platformer')
@@ -32,6 +34,16 @@ sun_img = pygame.image.load('img/sun.png')
 restart_img = pygame.image.load('img/restart_btn.png')
 start_img = pygame.image.load('img/start_btn.png')
 exit_img = pygame.image.load('img/exit_btn.png')
+
+# Load Sounds
+pygame.mixer.music.load('sounds/music.wav')
+pygame.mixer.music.play(-1, 0.0, 5000)
+coin_fx = pygame.mixer.Sound('sounds/coin.wav')
+coin_fx.set_volume(0.5)
+jump_fx = pygame.mixer.Sound('sounds/jump.wav')
+jump_fx.set_volume(0.5)
+game_over_fx = pygame.mixer.Sound('sounds/game_over.wav')
+game_over_fx.set_volume(0.5)
 
 # Define Font
 font = pygame.font.SysFont('Bauhaus 93', 70)
@@ -84,7 +96,7 @@ coin_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
 
 # Create dummy coin for showing the score
-score_coin = Coin(tile_size // 2, tile_size // 2 + 10, tile_size)
+score_coin = Coin(TILE_SIZE // 2, TILE_SIZE // 2 + 10, TILE_SIZE)
 coin_group.add(score_coin)
 
 # Create Player
@@ -127,11 +139,13 @@ while run:
             blob_group.update()
             # update score - check if a coin has been collected
             if pygame.sprite.spritecollide(player, coin_group, True):
+                coin_fx.play()
                 score += 1
-            draw_text("X " + str(score), font_score, white, tile_size - 10, 10)
+            draw_text("X " + str(score), font_score, white, TILE_SIZE - 10, 10)
 
 
-        game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, exit_group, game_over)
+        game_over = player.update(screen, SCREEN_HEIGHT, world, blob_group, lava_group, exit_group,
+                                  game_over, jump_fx, game_over_fx)
 
         #if player has died
         if game_over == -1:
