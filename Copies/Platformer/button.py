@@ -1,6 +1,6 @@
 import pygame
 
-class Button():
+class Button:
     def __init__(self, x, y, image):
         super().__init__()
         self.image = image

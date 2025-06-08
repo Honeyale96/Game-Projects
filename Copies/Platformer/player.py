@@ -1,7 +1,7 @@
 import pygame
 
 
-class Player(pygame.sprite.Sprite):
+class Player:
     def __init__(self, x, y):
         super().__init__()
         # Instance attributes
@@ -83,7 +83,7 @@ class Player(pygame.sprite.Sprite):
                         dy = 0
                     # move sideways with the platform
                     if platform.move_x != 0:
-                        self.rect.x += platform.move_direction
+                        self.rect.x += platform.move_direction * platform.move_x
 
             # Update player position
             self.rect.x += dx

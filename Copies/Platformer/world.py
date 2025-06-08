@@ -7,7 +7,7 @@ from exit import Exit
 from step import Platform
 
 
-class World(pygame.sprite.Sprite):
+class World:
     def __init__(self, data, tile_size, blob_group, lava_group, coin_group, exit_group, platform_group):
         super().__init__()
         self.tile_list = []
