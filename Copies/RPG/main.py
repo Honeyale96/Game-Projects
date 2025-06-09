@@ -56,8 +56,10 @@ while run:
     draw_bg()
     draw_panel()
     # draw fighters
+    knight.update()
     knight.draw(screen)
     for bandit in bandit_list:
+        bandit.update()
         bandit.draw(screen)
 
 
