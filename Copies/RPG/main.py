@@ -1,5 +1,6 @@
 import pygame
 
+from fighter import Fighter
 
 # -----------------------
 # Game Configuration
@@ -37,6 +38,12 @@ def draw_panel():
 # -----------------------
 
 
+knight = Fighter(200, 260, 'Knight', 30, 10, 3)
+bandit1 = Fighter(550, 270, 'Bandit', 20, 6, 1)
+bandit2 = Fighter(700, 270, 'Bandit', 20, 6, 1)
+
+
+bandit_list = [bandit1, bandit2]
 # -----------------------
 # Game Loop
 # -----------------------
@@ -48,6 +55,10 @@ while run:
     # Draw onto screen
     draw_bg()
     draw_panel()
+    # draw fighters
+    knight.draw(screen)
+    for bandit in bandit_list:
+        bandit.draw(screen)
 
 
     for event in pygame.event.get():
