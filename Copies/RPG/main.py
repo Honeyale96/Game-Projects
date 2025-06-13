@@ -1,3 +1,5 @@
+from enum import nonmember
+
 import pygame
 
 from fighter import Fighter
@@ -19,6 +21,15 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Battle")
 
+# Define game variables
+current_fighter = 1
+total_fighters = 3
+action_cooldown = 0
+action_wait_time = 90
+attack = False
+potion = False
+clicked = False
+
 # Define fonts
 font = pygame.font.SysFont('Times New Roman', 26)
 
@@ -29,7 +40,7 @@ green = (0, 255, 0)
 # Load images
 background_img = pygame.image.load('img/Background/background.png').convert_alpha()
 panel_img = pygame.image.load('img/Icons/panel.png').convert_alpha()
-
+sword_img = pygame.image.load('img/Icons/sword.png').convert_alpha()
 
 # -----------------------
 # Helper Functions
@@ -94,9 +105,61 @@ while run:
         bandit.draw(screen)
 
 
+    # Control Player Actions
+    # Reset action variables
+    attack = False
+    potion = False
+    target = None
+    # make sure mouse is visible
+    pygame.mouse.set_visible(True)
+    pos = pygame.mouse.get_pos()
+    for count, bandit in enumerate(bandit_list):
+        if bandit.rect.collidepoint(pos):
+            # hide mouse
+            pygame.mouse.set_visible(False)
+            # show sword in place of mouse cursor
+            screen.blit(sword_img, pos)
+            if clicked:
+                attack = True
+                target = bandit_list[count]
+
+    # Player action
+    if knight.alive:
+        if current_fighter == 1:
+            action_cooldown += 1
+            if action_cooldown >= action_wait_time:
+                # look for player action
+                # attack
+                if attack and target is not None:
+                    knight.attack(target)
+                    current_fighter += 1
+                    action_cooldown = 0
+
+    # Enemy Action
+    for count, bandit in enumerate(bandit_list):
+        if current_fighter == 2 + count:
+            if bandit.alive:
+                action_cooldown += 1
+                if action_cooldown >= action_wait_time:
+                    # attack
+                    bandit.attack(knight)
+                    current_fighter += 1
+                    action_cooldown = 0
+            else:
+                current_fighter += 1
+
+    # if all fighter had a turn then reset
+    if current_fighter > total_fighters:
+        current_fighter = 1
+
+    # Event Handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clicked = True
+        else:
+            clicked = False
 
 
     pygame.display.update()

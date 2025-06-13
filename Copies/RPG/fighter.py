@@ -1,6 +1,8 @@
 import pygame
+import random
 
-class Fighter():
+
+class Fighter:
     def __init__(self, x, y, name, max_hp, strength, potions):
         self.name = name
         self.max_hp = max_hp
@@ -11,7 +13,7 @@ class Fighter():
         self.alive = True
         self.animation_list = []
         self.frame_index = 0
-        self.action = 0     # 0=idle, 1=attack, 2=hurt, 3=dead
+        self.action = 0  # 0=idle, 1=attack, 2=hurt, 3=dead
         self.update_time = pygame.time.get_ticks()
         # load idle images
         temp_list = []
@@ -29,7 +31,7 @@ class Fighter():
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
+        self.rect.center = (x, y)
 
     def update(self):
         animation_cooldown = 100
@@ -42,8 +44,27 @@ class Fighter():
             self.frame_index += 1
         # if the animation has run out then reset back to start
         if self.frame_index >= len(self.animation_list[self.action]):
-            self.frame_index = 0
+            self.idle()
 
+    def idle(self):
+        # set variables to idle animation
+        self.action = 0
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+
+    def attack(self, target):
+        # deal damage to enemy
+        rand = random.randint(-5, 5)
+        damage = self.strength + rand
+        target.hp = + damage
+        # check if target has dies
+        if target.hp < 1:
+            target.hp = 0
+            target.alive = False
+        # set variables to attack animation
+        self.action = 1
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
