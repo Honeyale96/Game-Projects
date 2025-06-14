@@ -129,7 +129,7 @@ while run:
             pygame.mouse.set_visible(False)
             # show sword in place of mouse cursor
             screen.blit(sword_img, pos)
-            if clicked:
+            if clicked and bandit.alive:
                 attack = True
                 target = bandit_list[count]
 
