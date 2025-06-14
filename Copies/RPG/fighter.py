@@ -1,6 +1,8 @@
 import pygame
 import random
 
+from damagetext import DamageText
+
 
 class Fighter:
     def __init__(self, x, y, name, max_hp, strength, potions):
@@ -52,15 +54,17 @@ class Fighter:
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
 
-    def attack(self, target):
+    def attack(self, target, red, font, damage_text_group):
         # deal damage to enemy
         rand = random.randint(-5, 5)
         damage = self.strength + rand
-        target.hp = + damage
+        target.hp -= damage
         # check if target has dies
         if target.hp < 1:
             target.hp = 0
             target.alive = False
+        damage_text = DamageText(target.rect.centerx, target.rect.y, str(damage), red, font)
+        damage_text_group.add(damage_text)
         # set variables to attack animation
         self.action = 1
         self.frame_index = 0
