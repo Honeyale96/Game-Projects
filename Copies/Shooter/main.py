@@ -1,5 +1,7 @@
 import pygame
 
+from player import Soldier
+
 # -----------------------
 # Game Configuration
 # -----------------------
@@ -15,6 +17,8 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Shooter")
 
+# Game Variables
+
 # -----------------------
 # Helper Functions
 # -----------------------
@@ -24,6 +28,7 @@ pygame.display.set_caption("Shooter")
 # Game Objects
 # -----------------------
 
+player = Soldier(200, 200, 3)
 
 # -----------------------
 # Game Loop
@@ -33,7 +38,7 @@ while run:
 
     clock.tick(FPS)
 
-
+    player.draw(screen)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
