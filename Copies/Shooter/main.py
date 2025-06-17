@@ -17,6 +17,9 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Shooter")
 
+# Load Images
+bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
+
 # Define Colors
 BG = (144,201, 120)
 RED = (255, 0, 0)
@@ -27,6 +30,7 @@ GRAVITY = 0.75
 # Define Player Action Variables
 moving_left = False
 moving_right = False
+shoot = False
 
 # -----------------------
 # Helper Functions
@@ -41,8 +45,12 @@ def draw_bg():
 # Game Objects
 # -----------------------
 
-player = Soldier('player', 200, 200, 3, 5)
-enemy = Soldier('enemy', 400, 200, 3, 5)
+# Groups
+bullet_group = pygame.sprite.Group()
+
+# Instances
+player = Soldier('player', 200, 200, 3, 5, 20)
+enemy = Soldier('enemy', 400, 200, 3, 5, 20)
 
 # -----------------------
 # Game Loop
@@ -54,12 +62,20 @@ while run:
 
     draw_bg()
 
-    player.update_animation()
+    # Updates
+    player.update()
     player.draw(screen)
+    enemy.update()
     enemy.draw(screen)
+
+    # Update and draw groups
+    bullet_group.update(SCREEN_WIDTH, bullet_group, player, enemy)
+    bullet_group.draw(screen)
 
     # Update player actions
     if player.alive:
+        if shoot:
+            player.shoot(bullet_group, bullet_img)
         if player.in_air:
             player.update_action(2)  # 2=Jump
         elif moving_left or moving_right:
@@ -77,16 +93,21 @@ while run:
                 moving_left = True
             if event.key == pygame.K_d:
                 moving_right = True
+            if event.key == pygame.K_SPACE:
+                shoot = True
             if event.key == pygame.K_w and player.alive:
                 player.jump = True
             if event.key == pygame.K_ESCAPE:
                 run = False
+
         # keyboard released
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 moving_left = False
             if event.key == pygame.K_d:
                 moving_right = False
+            if event.key == pygame.K_SPACE:
+                shoot = False
 
 
     pygame.display.update()
