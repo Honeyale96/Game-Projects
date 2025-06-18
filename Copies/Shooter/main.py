@@ -87,11 +87,13 @@ item_box = ItemBox('Grenade',TILE_SIZE, item_boxes, 500,260)
 item_box_group.add(item_box)
 
 # Instances
-player = Soldier('player', 200, 200, 3, 5, 20, 5)
+player = Soldier('player', 200, 200, 1.65, 5, 20, 5)
 health_bar = HealthBar(10, 10, player.health, player.health)
 
-enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
+enemy = Soldier('enemy', 400, 200, 1.65, 2, 20, 0)
+enemy2 = Soldier('enemy', 600, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
+enemy_group.add(enemy2)
 
 # -----------------------
 # Game Loop
@@ -115,6 +117,7 @@ while run:
     player.update()
     player.draw(screen)
     for enemy in enemy_group:
+        enemy.ai(player, GRAVITY, TILE_SIZE, bullet_group, bullet_img)
         enemy.update()
         enemy.draw(screen)
 
