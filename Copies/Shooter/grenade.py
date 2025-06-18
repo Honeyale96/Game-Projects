@@ -1,5 +1,6 @@
 import pygame
 
+from explosion import Explosion
 
 class Grenade(pygame.sprite.Sprite):
     def __init__(self, grenade_img, x, y, direction):
@@ -12,7 +13,7 @@ class Grenade(pygame.sprite.Sprite):
         self.rect.center = (x,y)
         self.direction = direction
 
-    def update(self, screen_width, gravity):
+    def update(self, screen_width, tile_size, gravity, explosion_group, enemy_group, player):
         self.vel_y += gravity
         dx = self.direction * self.speed
         dy = self.vel_y
@@ -30,3 +31,19 @@ class Grenade(pygame.sprite.Sprite):
         # update grenade position
         self.rect.x += dx
         self.rect.y += dy
+
+        # countdown timer
+        self.timer -= 1
+        if self.timer <= 0:
+            self.kill()
+            explosion = Explosion(self.rect.x, self.rect.y, 0.5)
+            explosion_group.add(explosion)
+            # do damage to player if nearby
+            if abs(self.rect.centerx - player.rect.centerx) < tile_size * 2 and \
+                abs(self.rect.centery - player.rect.centery) < tile_size * 2:
+                player.health -= 50
+            for enemy in enemy_group:
+                # do damage to enemy if nearby
+                if abs(self.rect.centerx - enemy.rect.centerx) < tile_size * 2 and \
+                        abs(self.rect.centery - enemy.rect.centery) < tile_size * 2:
+                    enemy.health -= 50

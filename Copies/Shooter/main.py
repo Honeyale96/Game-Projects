@@ -28,6 +28,7 @@ RED = (255, 0, 0)
 
 # Game Variables
 GRAVITY = 0.75
+TILE_SIZE = 40
 
 # Define Player Action Variables
 moving_left = False
@@ -50,12 +51,15 @@ def draw_bg():
 # -----------------------
 
 # Groups
+enemy_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
 
 # Instances
 player = Soldier('player', 200, 200, 3, 5, 20, 5)
 enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
+enemy_group.add(enemy)
 
 # -----------------------
 # Game Loop
@@ -70,14 +74,17 @@ while run:
     # Updates
     player.update()
     player.draw(screen)
-    enemy.update()
-    enemy.draw(screen)
+    for enemy in enemy_group:
+        enemy.update()
+        enemy.draw(screen)
 
     # Update and draw groups
-    bullet_group.update(SCREEN_WIDTH, bullet_group, player, enemy)
+    bullet_group.update(SCREEN_WIDTH, bullet_group, enemy_group, player)
     bullet_group.draw(screen)
-    grenade_group.update(SCREEN_WIDTH, GRAVITY)
+    grenade_group.update(SCREEN_WIDTH, TILE_SIZE, GRAVITY, explosion_group, enemy_group, player)
     grenade_group.draw(screen)
+    explosion_group.update()
+    explosion_group.draw(screen)
 
     # Update player actions
     if player.alive:
