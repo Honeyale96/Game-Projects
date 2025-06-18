@@ -1,6 +1,8 @@
 import pygame
 
 from grenade import Grenade
+from healthbar import HealthBar
+from items import ItemBox
 from player import Soldier
 
 # -----------------------
@@ -21,10 +23,26 @@ pygame.display.set_caption("Shooter")
 # Load Images
 bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
+# collectibles
+health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
+grenade_box_img = pygame.image.load('img/icons/grenade_box.png').convert_alpha()
+item_boxes = {
+    'Health'    :   health_box_img,
+    'Ammo'      :   ammo_box_img,
+    'Grenade'   :   grenade_box_img
+}
 
 # Define Colors
 BG = (144,201, 120)
 RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
+
+
+# Define Font
+font = pygame.font.SysFont('Futura', 30)
 
 # Game Variables
 GRAVITY = 0.75
@@ -45,6 +63,9 @@ def draw_bg():
     screen.fill(BG)
     pygame.draw.line(screen, RED, (0,300), (SCREEN_WIDTH, 300))
 
+def draw_text (text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x,y))
 
 # -----------------------
 # Game Objects
@@ -55,9 +76,20 @@ enemy_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
+item_box_group = pygame.sprite.Group()
+
+# Temp - create item boxes
+item_box = ItemBox('Health', TILE_SIZE, item_boxes, 100, 260)
+item_box_group.add(item_box)
+item_box = ItemBox('Ammo', TILE_SIZE, item_boxes, 400, 260)
+item_box_group.add(item_box)
+item_box = ItemBox('Grenade',TILE_SIZE, item_boxes, 500,260)
+item_box_group.add(item_box)
 
 # Instances
 player = Soldier('player', 200, 200, 3, 5, 20, 5)
+health_bar = HealthBar(10, 10, player.health, player.health)
+
 enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
 enemy_group.add(enemy)
 
@@ -69,7 +101,15 @@ while run:
 
     clock.tick(FPS)
 
+    # Draw
     draw_bg()
+    health_bar.draw(screen, RED, GREEN, BLACK, player.health)
+    draw_text('AMMO: ', font, WHITE, 10, 30)
+    for x in range(player.ammo):
+        screen.blit(bullet_img, (130 + (x * 10), 50))
+    draw_text('GRENADES: ', font, WHITE, 10, 60)
+    for x in range(player.grenades):
+        screen.blit(grenade_img, (190 + (x * 15), 75))
 
     # Updates
     player.update()
@@ -85,6 +125,8 @@ while run:
     grenade_group.draw(screen)
     explosion_group.update()
     explosion_group.draw(screen)
+    item_box_group.update(player)
+    item_box_group.draw(screen)
 
     # Update player actions
     if player.alive:
