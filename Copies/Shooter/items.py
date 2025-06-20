@@ -1,7 +1,7 @@
 import pygame
 
 class ItemBox(pygame.sprite.Sprite):
-    def __init__(self,item_type, tile_size, item_boxes, x, y):
+    def __init__(self, item_type, tile_size, x, y,  item_boxes):
         pygame.sprite.Sprite.__init__(self)
         self.item_type = item_type
         self.image = item_boxes[self.item_type]

@@ -1,9 +1,8 @@
 import pygame
+import csv
 
 from grenade import Grenade
-from healthbar import HealthBar
-from items import ItemBox
-from player import Soldier
+from world import World
 
 # -----------------------
 # Game Configuration
@@ -11,6 +10,21 @@ from player import Soldier
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 FPS = 60
+
+# Game Variables
+GRAVITY = 0.75
+ROWS = 16
+COLUMNS = 150
+TILE_SIZE = SCREEN_HEIGHT // ROWS
+TILE_TYPES = 21
+level = 1
+
+# Define Colors
+BG = (144,201, 120)
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
 
 # -----------------------
 # Initializations
@@ -20,9 +34,18 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Shooter")
 
+# Define Font
+font = pygame.font.SysFont('Futura', 30)
+
 # Load Images
 bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
+# store tiles in a list
+img_list = []
+for x in range(TILE_TYPES):
+    img = pygame.image.load(f'img/Tile/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
 # collectibles
 health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
@@ -32,21 +55,6 @@ item_boxes = {
     'Ammo'      :   ammo_box_img,
     'Grenade'   :   grenade_box_img
 }
-
-# Define Colors
-BG = (144,201, 120)
-RED = (255, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-BLACK = (0, 0, 0)
-
-
-# Define Font
-font = pygame.font.SysFont('Futura', 30)
-
-# Game Variables
-GRAVITY = 0.75
-TILE_SIZE = 40
 
 # Define Player Action Variables
 moving_left = False
@@ -77,23 +85,26 @@ bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
 item_box_group = pygame.sprite.Group()
+decoration_group = pygame.sprite.Group()
+water_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()
 
-# Temp - create item boxes
-item_box = ItemBox('Health', TILE_SIZE, item_boxes, 100, 260)
-item_box_group.add(item_box)
-item_box = ItemBox('Ammo', TILE_SIZE, item_boxes, 400, 260)
-item_box_group.add(item_box)
-item_box = ItemBox('Grenade',TILE_SIZE, item_boxes, 500,260)
-item_box_group.add(item_box)
 
-# Instances
-player = Soldier('player', 200, 200, 1.65, 5, 20, 5)
-health_bar = HealthBar(10, 10, player.health, player.health)
+# Create empty tile list
+world_data = []
+for row in range(ROWS):
+    r = [-1] * COLUMNS
+    world_data.append(r)
+# Load in level data and create world
+with open(f'level{level}_data.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)
 
-enemy = Soldier('enemy', 400, 200, 1.65, 2, 20, 0)
-enemy2 = Soldier('enemy', 600, 200, 1.65, 2, 20, 0)
-enemy_group.add(enemy)
-enemy_group.add(enemy2)
+world = World()
+player, health_bar = world.process_data(TILE_SIZE, world_data, img_list,
+                                        enemy_group, item_box_group, decoration_group, water_group, exit_group, item_boxes)
 
 # -----------------------
 # Game Loop
@@ -103,8 +114,10 @@ while run:
 
     clock.tick(FPS)
 
-    # Draw
+    # Update background
     draw_bg()
+    # Draw world map
+    world.draw(screen)
     health_bar.draw(screen, RED, GREEN, BLACK, player.health)
     draw_text('AMMO: ', font, WHITE, 10, 30)
     for x in range(player.ammo):
@@ -130,6 +143,12 @@ while run:
     explosion_group.draw(screen)
     item_box_group.update(player)
     item_box_group.draw(screen)
+    decoration_group.update()
+    decoration_group.draw(screen)
+    water_group.update()
+    water_group.draw(screen)
+    exit_group.update()
+    exit_group.draw(screen)
 
     # Update player actions
     if player.alive:
