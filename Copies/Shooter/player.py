@@ -63,11 +63,11 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-
     def move(self, moving_left, moving_right, gravity):
         # reset movement variables
         dx = 0
         dy = 0
+
         # assign movement variables
         if moving_left:
             dx = -self.speed
@@ -89,27 +89,30 @@ class Soldier(pygame.sprite.Sprite):
         if self.vel_y > 10:
             self.vel_y = 10
         dy += self.vel_y
+        self.in_air = True
 
-        # check for collision
+        # horizontal collision check
+        self.rect.x += dx
         for tile in self.obstacle_list:
-            # check collision in x direction
-            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
-                dx = 0
-            # check collision in y direction
-            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                # check if below the ground i.e. jumping
-                if self.vel_y < 0:
-                    self.vel_y = 0
-                    dy = tile[1].bottom - self.rect.top
-                # check if above the ground, i.e. falling
-                elif self.vel_y >= 0:
+            if tile[1].colliderect(self.rect):
+                if dx > 0:  # moving right
+                    self.rect.right = tile[1].left
+                if dx < 0:  # moving left
+                    self.rect.left = tile[1].right
+
+        # vertical collision check
+        self.rect.y += dy
+        for tile in self.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                if dy > 0:  # falling
+                    self.rect.bottom = tile[1].top
                     self.vel_y = 0
                     self.in_air = False
-                    dy = tile[1].top - self.rect.bottom
+                elif dy < 0:  # jumping
+                    self.rect.top = tile[1].bottom
+                    self.vel_y = 0
 
-        # update rect position
-        self.rect.x += dx
-        self.rect.y += dy
+        return dx
 
     def shoot(self, bullet_group, bullet_img):
         if self.shoot_cooldown == 0 and self.ammo > 0:
