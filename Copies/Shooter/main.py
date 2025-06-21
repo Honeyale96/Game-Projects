@@ -69,7 +69,6 @@ grenade_thrown = False
 
 def draw_bg():
     screen.fill(BG)
-    pygame.draw.line(screen, RED, (0,300), (SCREEN_WIDTH, 300))
 
 def draw_text (text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -157,7 +156,7 @@ while run:
         # throw grenades
         elif grenade and grenade_thrown == False and player.grenades > 0:
             grenade = Grenade(grenade_img, player.rect.centerx + (0.5 * player.rect.size[0] * player.direction),
-                              player.rect.top, player.direction)
+                              player.rect.top, player.direction, world.obstacle_list)
             grenade_group.add(grenade)
             player.grenades -= 1
             grenade_thrown = True

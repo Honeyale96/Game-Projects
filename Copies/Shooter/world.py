@@ -29,10 +29,10 @@ class World:
                         decoration = Decoration(img, tile_size, x * tile_size, y * tile_size)
                         decoration_group.add(decoration)
                     elif tile == 15:    # create player
-                        player = Soldier('player', x * tile_size, y * tile_size, 1.65, 5, 20, 5)
+                        player = Soldier('player', x * tile_size, y * tile_size, 1.65, 5, 20, 5, self.obstacle_list)
                         health_bar = HealthBar(10, 10, player.health, player.health)
                     elif tile == 16:    # create enemies
-                        enemy = Soldier('enemy', x * tile_size, y * tile_size, 1.65, 2, 20, 0)
+                        enemy = Soldier('enemy', x * tile_size, y * tile_size, 1.65, 2, 20, 0, self.obstacle_list)
                         enemy_group.add(enemy)
                     elif tile == 17:    # Ammo box
                         item_box = ItemBox('Ammo', tile_size, x * tile_size, y * tile_size, item_boxes)

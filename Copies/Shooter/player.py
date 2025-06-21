@@ -4,8 +4,9 @@ import random
 
 from bullet import Bullet
 
+
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, char_type, x, y, scale, speed, ammo, grenades):
+    def __init__(self, char_type, x, y, scale, speed, ammo, grenades, obstacle_list):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         self.char_type = char_type
@@ -25,6 +26,7 @@ class Soldier(pygame.sprite.Sprite):
         self.frame_index = 0
         self.action = 0     # 0=Idle 1=Run 2=Jump  3=Death
         self.update_time = pygame.time.get_ticks()
+        self.obstacle_list = obstacle_list
 
         # AI specific variables
         self.move_counter = 0
@@ -50,6 +52,8 @@ class Soldier(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
 
     def update(self):
@@ -86,10 +90,22 @@ class Soldier(pygame.sprite.Sprite):
             self.vel_y = 10
         dy += self.vel_y
 
-        # check collision with floor
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.in_air = False
+        # check for collision
+        for tile in self.obstacle_list:
+            # check collision in x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+            # check collision in y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # check if below the ground i.e. jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check if above the ground, i.e. falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom
 
         # update rect position
         self.rect.x += dx
@@ -99,7 +115,7 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
             bullet = Bullet(bullet_img, self.rect.centerx + (0.75 * self.rect.size[0] * self.direction),
-                            self.rect.centery, self.direction)
+                            self.rect.centery, self.direction, self.obstacle_list)
             bullet_group.add(bullet)
             # reduce ammo
             self.ammo -= 1
