@@ -63,7 +63,8 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, moving_left, moving_right, gravity, screen_width, scroll_threshold, bg_scroll, tile_size):
+    def move(self, moving_left, moving_right, gravity, screen_width, screen_height,
+             scroll_threshold, bg_scroll, tile_size, water_group, exit_group):
         # reset movement variables
         screen_scroll = 0
         dx = 0
@@ -91,6 +92,17 @@ class Soldier(pygame.sprite.Sprite):
             self.vel_y = 10
         dy += self.vel_y
         self.in_air = True
+
+        # check for collision with water
+        if pygame.sprite.spritecollide(self, water_group, False):
+            self.health = 0
+        # check for collision wth exit
+        level_complete = False
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            level_complete = True
+        # check if fallen off the map
+        if self.rect.bottom > screen_height:
+            self.health = 0
 
         # check if going off the edges of the screen
         if self.char_type == 'player':
@@ -124,7 +136,7 @@ class Soldier(pygame.sprite.Sprite):
                     or self.rect.left < scroll_threshold and bg_scroll > abs(dx)):
                 self.rect.x -= dx
                 screen_scroll = -dx
-        return screen_scroll
+        return screen_scroll, level_complete
 
 
 
