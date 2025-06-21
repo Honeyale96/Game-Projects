@@ -92,6 +92,11 @@ class Soldier(pygame.sprite.Sprite):
         dy += self.vel_y
         self.in_air = True
 
+        # check if going off the edges of the screen
+        if self.char_type == 'player':
+            if self.rect.left + dx < 0 or self.rect.right + dx > screen_width:
+                dx = 0
+
         # horizontal collision check
         self.rect.x += dx
         for tile in self.obstacle_list:
@@ -112,11 +117,6 @@ class Soldier(pygame.sprite.Sprite):
                 elif dy < 0:  # jumping
                     self.rect.top = tile[1].bottom
                     self.vel_y = 0
-
-        # check if going off the edges of the screen
-        if self.char_type == 'player':
-            if self.rect.left + dx < 0 or self.rect.right + dx > screen_width:
-                dx = 0
 
         # update scroll based on player position
         if self.char_type == 'player':
@@ -162,11 +162,11 @@ class Soldier(pygame.sprite.Sprite):
             if tile[1].colliderect(self.rect):
                 if dx > 0:  # moving right
                     self.rect.right = tile[1].left
-                    self.direction *= -1  # turn left
+                    self.direction = -1  # turn left
                     self.move_counter = 0
                 if dx < 0:  # moving left
                     self.rect.left = tile[1].right
-                    self.direction *= 1  # turn right
+                    self.direction = 1  # turn right
                     self.move_counter = 0
 
         # vertical collision check
