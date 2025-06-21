@@ -10,9 +10,9 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.obstacle_list = obstacle_list
 
-    def update(self, screen_width, bullet_group, enemy_group, player):
+    def update(self, screen_width, bullet_group, enemy_group, player, screen_scroll):
         # move bullet
-        self.rect.x += (self.direction * self.speed)
+        self.rect.x += (self.direction * self.speed) + screen_scroll
         # check if bullet has gone off-screen
         if self.rect.right < 0 or self.rect.left > screen_width:
             self.kill()

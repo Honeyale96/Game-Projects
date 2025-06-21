@@ -16,7 +16,7 @@ class Grenade(pygame.sprite.Sprite):
         self.direction = direction
         self.obstacle_list = obstacle_list
 
-    def update(self, screen_width, tile_size, gravity, explosion_group, enemy_group, player):
+    def update(self, screen_width, tile_size, gravity, explosion_group, enemy_group, player, screen_scroll):
         self.vel_y += gravity
         dx = self.direction * self.speed
         dy = self.vel_y
@@ -41,7 +41,7 @@ class Grenade(pygame.sprite.Sprite):
 
 
         # update grenade position
-        self.rect.x += dx
+        self.rect.x += dx + screen_scroll
         self.rect.y += dy
 
         # countdown timer

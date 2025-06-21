@@ -4,9 +4,8 @@ import random
 
 from bullet import Bullet
 
-
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, char_type, x, y, scale, speed, ammo, grenades, obstacle_list):
+    def __init__(self, char_type, x, y, scale, speed, ammo, grenades, obstacle_list, level_length):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         self.char_type = char_type
@@ -27,6 +26,7 @@ class Soldier(pygame.sprite.Sprite):
         self.action = 0     # 0=Idle 1=Run 2=Jump  3=Death
         self.update_time = pygame.time.get_ticks()
         self.obstacle_list = obstacle_list
+        self.level_length = level_length
 
         # AI specific variables
         self.move_counter = 0
@@ -63,8 +63,9 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, moving_left, moving_right, gravity):
+    def move(self, moving_left, moving_right, gravity, screen_width, scroll_threshold, bg_scroll, tile_size):
         # reset movement variables
+        screen_scroll = 0
         dx = 0
         dy = 0
 
@@ -112,7 +113,74 @@ class Soldier(pygame.sprite.Sprite):
                     self.rect.top = tile[1].bottom
                     self.vel_y = 0
 
-        return dx
+        # check if going off the edges of the screen
+        if self.char_type == 'player':
+            if self.rect.left + dx < 0 or self.rect.right + dx > screen_width:
+                dx = 0
+
+        # update scroll based on player position
+        if self.char_type == 'player':
+            if ((self.rect.right > screen_width - scroll_threshold and bg_scroll < (self.level_length * tile_size - screen_width))
+                    or self.rect.left < scroll_threshold and bg_scroll > abs(dx)):
+                self.rect.x -= dx
+                screen_scroll = -dx
+        return screen_scroll
+
+
+
+    def ai_move(self, moving_left, moving_right, gravity):
+        # reset movement variables
+        dx = 0
+        dy = 0
+
+        # assign movement variables
+        if moving_left:
+            dx = -self.speed
+            self.flip = True
+            self.direction = -1
+        if moving_right:
+            dx = self.speed
+            self.flip = False
+            self.direction = 1
+
+        # jump
+        if self.jump and not self.in_air:
+            self.vel_y = -11
+            self.jump = False
+            self.in_air = True
+
+        # apply gravity
+        self.vel_y += gravity
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+        self.in_air = True
+
+        # horizontal collision check
+        self.rect.x += dx
+        for tile in self.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                if dx > 0:  # moving right
+                    self.rect.right = tile[1].left
+                    self.direction *= -1  # turn left
+                    self.move_counter = 0
+                if dx < 0:  # moving left
+                    self.rect.left = tile[1].right
+                    self.direction *= 1  # turn right
+                    self.move_counter = 0
+
+        # vertical collision check
+        self.rect.y += dy
+        for tile in self.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                if dy > 0:  # falling
+                    self.rect.bottom = tile[1].top
+                    self.vel_y = 0
+                    self.in_air = False
+                elif dy < 0:  # jumping
+                    self.rect.top = tile[1].bottom
+                    self.vel_y = 0
+
 
     def shoot(self, bullet_group, bullet_img):
         if self.shoot_cooldown == 0 and self.ammo > 0:
@@ -123,7 +191,7 @@ class Soldier(pygame.sprite.Sprite):
             # reduce ammo
             self.ammo -= 1
 
-    def ai(self, player, gravity, tile_size, bullet_group, bullet_img):
+    def ai(self, player, gravity, tile_size, bullet_group, bullet_img, screen_scroll):
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)   # 0=Idle
@@ -141,7 +209,7 @@ class Soldier(pygame.sprite.Sprite):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
-                    self.move(ai_moving_left, ai_moving_right, gravity)
+                    self.ai_move(ai_moving_left, ai_moving_right, gravity)
                     self.update_action(1)   # 1=Run
                     self.move_counter += 1
                     # update AI vision as the enemy moves
@@ -155,6 +223,8 @@ class Soldier(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
+        # scroll
+        self.rect.x += screen_scroll
 
     def update_animation(self):
         # update animation
