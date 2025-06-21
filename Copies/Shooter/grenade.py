@@ -16,7 +16,7 @@ class Grenade(pygame.sprite.Sprite):
         self.direction = direction
         self.obstacle_list = obstacle_list
 
-    def update(self, screen_width, tile_size, gravity, explosion_group, enemy_group, player, screen_scroll):
+    def update(self, screen_width, tile_size, gravity, explosion_group, enemy_group, player, screen_scroll, grenade_fx):
         self.vel_y += gravity
         dx = self.direction * self.speed
         dy = self.vel_y
@@ -48,6 +48,7 @@ class Grenade(pygame.sprite.Sprite):
         self.timer -= 1
         if self.timer <= 0:
             self.kill()
+            grenade_fx.play()
             explosion = Explosion(self.rect.x, self.rect.y, 0.5)
             explosion_group.add(explosion)
             # do damage to player if nearby

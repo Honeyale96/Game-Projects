@@ -194,7 +194,7 @@ class Soldier(pygame.sprite.Sprite):
                     self.vel_y = 0
 
 
-    def shoot(self, bullet_group, bullet_img):
+    def shoot(self, bullet_group, bullet_img, shot_fx):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
             bullet = Bullet(bullet_img, self.rect.centerx + (0.75 * self.rect.size[0] * self.direction),
@@ -202,8 +202,9 @@ class Soldier(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             # reduce ammo
             self.ammo -= 1
+            shot_fx.play()
 
-    def ai(self, player, gravity, tile_size, bullet_group, bullet_img, screen_scroll):
+    def ai(self, player, gravity, tile_size, bullet_group, bullet_img, screen_scroll, shot_fx):
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)   # 0=Idle
@@ -213,7 +214,7 @@ class Soldier(pygame.sprite.Sprite):
             if self.vision.colliderect(player.rect):
                 # stop running and face the player
                 self.update_action(0)   # 0=Idle
-                self.shoot(bullet_group, bullet_img)
+                self.shoot(bullet_group, bullet_img, shot_fx)
             else:
                 if not self.idling:
                     if self.direction == 1:
