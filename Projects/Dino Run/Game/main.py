@@ -12,7 +12,7 @@ FPS = 60
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Create the game window
-pygame.display.set_caption('Cookie Run')  # Set window title
+pygame.display.set_caption('Dino Run')  # Set window title
 
 game = GameManager(screen)
 

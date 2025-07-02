@@ -9,4 +9,4 @@ class GameManager:
         pass
 
     def draw(self):
-        self.screen.fill((135, 206, 235))  # Sky blue background
+        self.screen.fill((255, 206, 255))  # bg
