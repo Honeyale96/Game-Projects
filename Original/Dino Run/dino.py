@@ -43,57 +43,58 @@ class Dino(pygame.sprite.Sprite):
         self.ground_y = ground_y  # Store ground level for jump/gravity checks
 
         # Jumping and gravity mechanics
-        self.vel_y = 0  # Vertical velocity (up/down movement)
-        self.gravity = 0.6  # Constant downward acceleration
-        self.jump_vel = -12  # Initial upward force when jumping
-        self.on_ground = True  # Whether Dino is touching the ground
-        self.jump_count = 0  # Number of jumps made (to allow double jump)
+        self.vel_y = 0  # Vertical velocity
+        self.gravity = 0.6  # Downward acceleration
+        self.jump_vel = -12  # Upward force when jumping
+        self.on_ground = True  # True if character is on the ground
+        self.jump_count = 0  # Number of jumps made (used for double jump)
 
         # Scroll speed: used for syncing with background and movement
         self.scroll_speed = scroll_speed
 
-
     def update(self, keys):
-        prev_action = self.action  # Store current action to detect state change
+        prev_action = self.action  # Track previous state to reset frame if it changes
 
-        # Choose action based on state and keys pressed
+        # --- Animation State Logic ---
         if not self.on_ground:
             self.action = self.JUMP
-            self.world_x += self.scroll_speed  # Move Dino forward while in air
+            self.world_x += self.scroll_speed  # Keep Dino moving in mid-air
         elif keys[pygame.K_DOWN]:
             self.action = self.CROUCH
             self.world_x += self.scroll_speed  # Move forward while crouching
         else:
             self.action = self.RUN
-            self.world_x += self.scroll_speed  # Move forward normally
+            self.world_x += self.scroll_speed  # Default running state
 
-        # Reset animation frame when changing action to prevent index errors
+        # If action changed (e.g., from RUN → JUMP), reset the frame counter
         if self.action != prev_action:
             self.frame = 0
 
-        self._apply_gravity()       # Update vertical motion
-        self._update_animation()    # Update sprite image
+        self.apply_gravity()  # Apply gravity
+        self._update_animation()  # Advance the sprite frame
 
     def jump(self):
-        if self.jump_count < 2:
+        if self.jump_count < 2:  # Allow double jump (2 max)
             self.vel_y = self.jump_vel  # Apply upward velocity
-            self.on_ground = False  # Dino is airborne
-            self.jump_count += 1  # Increase jump count (max 2)
+            self.on_ground = False  # Mark as airborne
+            self.jump_count += 1  # Track how many jumps used
 
     def draw(self, surface, scroll):
-        screen_x = self.world_x - scroll  # Convert world X to screen X
-        surface.blit(self.image, (screen_x, self.rect.y))  # Draw sprite
+        # Convert world position to screen position
+        screen_x = self.world_x - scroll
+        # Draw the current sprite frame at that screen position
+        surface.blit(self.image, (screen_x, self.rect.y))
 
-    def _apply_gravity(self):
+    def apply_gravity(self):
         self.vel_y += self.gravity  # Accelerate downward
-        self.rect.y += self.vel_y  # Apply velocity
+        self.rect.y += self.vel_y  # Apply velocity to vertical position
 
-        # Check if Dino hit the ground
+        # Check if Dino hits the ground
         if self.rect.bottom >= self.ground_y:
             self.rect.bottom = self.ground_y  # Stick to ground
             self.vel_y = 0  # Stop falling
             self.on_ground = True  # Mark as grounded
-            self.jump_count = 0  # Reset jump count for next double jump
+            self.jump_count = 0  # Reset jump count
 
     def _update_animation(self):
         current_time = pygame.time.get_ticks()  # Get current time in ms

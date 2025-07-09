@@ -36,8 +36,8 @@ bg_width = bg_images[0].get_width()
 scroll = 0
 
 # Initialize Dino
-ground_y = SCREEN_HEIGHT - (ground_height - 10)
-dino = Dino(200, ground_y, SCROLL_SPEED)
+ground = SCREEN_HEIGHT - (ground_height - 10)
+dino = Dino(200, ground, SCROLL_SPEED)
 
 # -----------------------
 # Helper Functions
