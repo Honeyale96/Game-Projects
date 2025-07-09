@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 490
 FPS = 60
+SCROLL_SPEED = 3
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Dino Run")
@@ -19,10 +20,13 @@ pygame.display.set_caption("Dino Run")
 # -----------------------
 # Initializations
 # -----------------------
+
+# Loading images
 ground_image = pygame.image.load("Assets/images/ground.png").convert_alpha()
 ground_width = ground_image.get_width()
 ground_height = ground_image.get_height()
 
+# Adding Parallax Images to list
 bg_images = []
 for i in range(1, 6):
     bg_image = pygame.image.load(f"Assets/images/plx-{i}.png").convert_alpha()
@@ -31,8 +35,9 @@ bg_width = bg_images[0].get_width()
 
 scroll = 0
 
+# Initialize Dino
 ground_y = SCREEN_HEIGHT - (ground_height - 10)
-dino = Dino(200, ground_y)
+dino = Dino(200, ground_y, SCROLL_SPEED)
 
 # -----------------------
 # Helper Functions
@@ -62,11 +67,10 @@ run = True
 while run:
     clock.tick(FPS)
 
-    # Key presses
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]:
-        scroll += 3
+    # Auto-Run
+    scroll += SCROLL_SPEED
 
+    keys = pygame.key.get_pressed()
     dino.update(keys)
 
     # Draw world
@@ -80,8 +84,9 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE, pygame.K_UP):
+            dino.jump()
 
     pygame.display.update()
-
 pygame.quit()
 
