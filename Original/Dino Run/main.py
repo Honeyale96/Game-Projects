@@ -1,6 +1,7 @@
 import pygame
 
 from dino import Dino
+from obstacle import Obstacle
 
 # -----------------------
 # Game Configuration
@@ -38,6 +39,11 @@ scroll = 0
 # Initialize Dino
 ground = SCREEN_HEIGHT - (ground_height - 10)
 dino = Dino(200, ground, SCROLL_SPEED)
+obstacles = [
+    Obstacle("stump", 900, SCREEN_HEIGHT - ground_height),
+    Obstacle("stone", 1300, SCREEN_HEIGHT - ground_height),
+    Obstacle("bird", 1700, SCREEN_HEIGHT - ground_height)
+]
 
 # -----------------------
 # Helper Functions
@@ -76,6 +82,10 @@ while run:
     # Draw world
     draw_bg()
     draw_ground()
+
+    for obstacle in obstacles:
+        obstacle.update(SCROLL_SPEED)
+        obstacle.draw(screen, scroll)
 
     dino.draw(screen, scroll)
 
