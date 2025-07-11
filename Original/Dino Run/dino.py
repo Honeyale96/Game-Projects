@@ -30,7 +30,7 @@ class Dino(pygame.sprite.Sprite):
             self.animation_list.append(temp)  # Add completed animation to main list
 
         # Animation control
-        self.action = self.RUN  # Start with running animation
+        self.action = self.IDLE  # Start with idle animation
         self.frame = 0  # Current frame index within animation
         self.last_update = pygame.time.get_ticks()  # Time of last frame switch
         self.animation_cooldown = 100  # Time (ms) between animation frames
@@ -71,7 +71,7 @@ class Dino(pygame.sprite.Sprite):
             self.frame = 0
 
         self.apply_gravity()  # Apply gravity
-        self._update_animation()  # Advance the sprite frame
+        self.update_animation()  # Advance the sprite frame
 
     def jump(self):
         if self.jump_count < 2:  # Allow double jump (2 max)
@@ -96,7 +96,7 @@ class Dino(pygame.sprite.Sprite):
             self.on_ground = True  # Mark as grounded
             self.jump_count = 0  # Reset jump count
 
-    def _update_animation(self):
+    def update_animation(self):
         current_time = pygame.time.get_ticks()  # Get current time in ms
         if current_time - self.last_update >= self.animation_cooldown:
             # Advance to next frame in animation loop

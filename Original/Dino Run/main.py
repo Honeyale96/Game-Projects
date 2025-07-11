@@ -38,7 +38,7 @@ scroll = 0
 
 # Initialize Dino
 ground = SCREEN_HEIGHT - (ground_height - 10)
-dino = Dino(200, ground, SCROLL_SPEED)
+dino = Dino(150, ground, SCROLL_SPEED)
 obstacles = [
     Obstacle("stump", 900, SCREEN_HEIGHT - ground_height),
     Obstacle("stone", 1300, SCREEN_HEIGHT - ground_height),

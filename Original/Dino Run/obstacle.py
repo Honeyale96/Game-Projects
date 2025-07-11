@@ -12,23 +12,26 @@ class Obstacle(pygame.sprite.Sprite):
         # Load and position the image
         if obstacle_type == "stump":
             self.image = pygame.image.load("Assets/images/stump.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (50, 50))
             self.rect = self.image.get_rect()
             self.rect.bottom = ground_y  # Sit on the ground
 
         elif obstacle_type == "stone":
             self.image = pygame.image.load("Assets/images/stone.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (120,120))
             self.rect = self.image.get_rect()
             self.rect.bottom = ground_y  # Sit on the ground
 
         elif obstacle_type == "bird":
             self.image = pygame.image.load("Assets/images/bird.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (80, 80))
             self.rect = self.image.get_rect()
             # Randomly place bird high or low for variety
             high_or_low = random.choice(["high", "low"])
             if high_or_low == "high":
-                self.rect.y = ground_y - 180  # High bird: no ducking needed
+                self.rect.y = ground_y - 150  # High bird: no ducking needed
             else:
-                self.rect.bottom = ground_y - 30  # Low bird: must duck
+                self.rect.bottom = ground_y - 50  # Low bird: must duck
 
     def update(self, scroll_speed):
         self.world_x -= scroll_speed  # Move left with scroll
