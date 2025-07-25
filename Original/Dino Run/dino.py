@@ -104,6 +104,19 @@ class Dino(pygame.sprite.Sprite):
             self.last_update = current_time  # Reset timer
         self.image = self.animation_list[self.action][self.frame]  # Update sprite
 
+    def get_rect(self, scroll):
+        screen_x = self.world_x - scroll  # Match draw()'s x-position
+        if self.action == self.CROUCH:  # If Dino is ducking
+            # Shrink hitbox from the top (y increases)
+            duck_height = int(self.rect.height * 0.6)
+            y_offset = self.rect.height - duck_height
+            # Get the collision rectangle of Dino
+            return pygame.Rect(screen_x, self.rect.y + y_offset, self.rect.width, duck_height)
+        else:
+            # Standing hitbox
+            return pygame.Rect(screen_x, self.rect.y, self.rect.width, self.rect.height)
+
+
 
 
 

@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from dino import Dino
 from obstacle import Obstacle
@@ -39,11 +40,9 @@ scroll = 0
 # Initialize Dino
 ground = SCREEN_HEIGHT - (ground_height - 10)
 dino = Dino(150, ground, SCROLL_SPEED)
-obstacles = [
-    Obstacle("stump", 900, SCREEN_HEIGHT - ground_height),
-    Obstacle("stone", 1300, SCREEN_HEIGHT - ground_height),
-    Obstacle("bird", 1700, SCREEN_HEIGHT - ground_height)
-]
+obstacles = []  # Start with no obstacles
+obstacle_timer = 0  # Time until next obstacle
+
 
 # -----------------------
 # Helper Functions
@@ -76,6 +75,22 @@ while run:
     # Auto-Run
     scroll += SCROLL_SPEED
 
+    # Obstacle Spawning
+    obstacle_timer -= 1  # Countdown timer for next obstacle
+
+    if obstacle_timer <= 0:
+        # Pick a random type
+        obstacle_type = random.choice(["stump", "stone", "bird"])
+        # Spawn just off-screen
+        new_x = scroll + SCREEN_WIDTH + 100
+        obstacles.append(Obstacle(obstacle_type, new_x, SCREEN_HEIGHT - ground_height))
+        # reduce delay as player runs further
+        distance = scroll // 2000  # How far player has run
+        min_delay = max(20, 60 - distance * 5)  # Lower limit: 20
+        max_delay = max(min_delay + 10, 100 - distance * 10)  # Still some randomness
+
+        obstacle_timer = random.randint(min_delay, max_delay)
+
     keys = pygame.key.get_pressed()
     dino.update(keys)
 
@@ -83,11 +98,22 @@ while run:
     draw_bg()
     draw_ground()
 
-    for obstacle in obstacles:
-        obstacle.update(SCROLL_SPEED)
+    # Update and draw obstacles
+    for obstacle in obstacles[:]:
+        obstacle.update(SCROLL_SPEED)  # Move with the scroll
         obstacle.draw(screen, scroll)
+        # Remove obstacle if it's completely off-screen (to save memory)
+        if obstacle.world_x - scroll + obstacle.rect.width < 0:
+            obstacles.remove(obstacle)
 
     dino.draw(screen, scroll)
+
+    # Collision detection
+    dino_rect = dino.get_rect(scroll)  # Dino's hitbox
+    for obstacle in obstacles:
+        obstacle_rect = obstacle.get_rect(scroll)  # Obstacle's screen-space hitbox
+        if dino_rect.colliderect(obstacle_rect):  # If they overlap
+            print("Hit!")  # TEMP — Later: lose health, restart, etc.
 
 
     # Event handlers
